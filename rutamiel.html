@@ -1,4 +1,7 @@
-<script>
+<div id="progress" class="progress">Cargando...</div>
+  <div id="gallery" class="gallery"></div>
+
+  <script>
     const dateOffset = 30000; // 30 seconds in milliseconds
     const timeOffset = 30;    // 30 seconds
     const imageFilename = 'rutamiel2019g.json';
@@ -31,7 +34,6 @@
 
             // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
             dataArray.forEach(item => {
-                // Ensure dorsal is stored as a string key
                 allResults[item.dorsal.toString()] = item;
             });
             console.log(`Cargados ${Object.keys(allResults).length} resultados de dorsal.`);
@@ -48,12 +50,11 @@
       filteredImages = allImages;
       currentIndex = 0;
       
-      // FIX: This now safely runs after DOMContentLoaded, guaranteeing 'gallery' exists.
+      // This line is the source of the error if the element isn't ready
       document.getElementById('gallery').innerHTML = '';
       
       updateProgress();
       loadNextBatch();
-      // Only attach scroll listener once all initial items are loaded
       window.addEventListener('scroll', handleScroll);
     }
 
@@ -144,14 +145,11 @@
 
         const tiempo = result.tiempo; 
         
-        // 1. Set the timeInput field value
         document.getElementById('timeInput').value = tiempo;
 
-        // 2. Clear other filter inputs
         document.getElementById('timestampInput').value = '';
         document.getElementById('dorsalInput').value = dorsalInput; 
 
-        // 3. Trigger the time filter
         filterByTime();
     }
 
@@ -194,7 +192,6 @@
         });
         
         document.getElementById('timestampInput').value = '';
-        // Clear dorsal input only if the time filter was NOT triggered by the dorsal filter
         if (document.activeElement.id !== 'dorsalInput') {
              document.getElementById('dorsalInput').value = '';
         }
@@ -238,9 +235,12 @@
       }
     }
 
-    // 🌟 THE FIX: Wait for the DOM to be fully loaded before running the functions
+    // Since the script is at the end of <body>, we can execute immediately
+    // or rely on DOMContentLoaded for safety. We will keep DOMContentLoaded.
     document.addEventListener('DOMContentLoaded', () => {
         loadResults().then(loadImages); 
     });
     
-</script>
+  </script>
+</body>
+</html>
