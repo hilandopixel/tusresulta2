@@ -16,11 +16,14 @@
     }
     .filter {
       text-align: center;
+      margin-bottom: 20px; /* Increased margin for new section */
+    }
+    .filter-group {
       margin-bottom: 10px;
     }
     input {
       padding: 8px;
-      width: 300px;
+      width: 250px; /* Adjusted width */
       font-size: 16px;
     }
     button {
@@ -67,24 +70,45 @@
 <body>
   <h1>Ruta Miel 2019 - TusResulta2</h1>
   <div class="filter">
-    <p>¿Qué tiempo has hecho?:</p>
-    <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
-    <button onclick="filterByDate()">Buscar</button>
-    <button onclick="resetFilter()">Limpiar filtro</button>
+    <div class="filter-group">
+      <p>¿Qué timestamp has hecho? (± 30 segundos):</p>
+      <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
+      <button onclick="filterByDate()">Buscar</button>
+      <button onclick="resetFilter('timestamp')">Limpiar</button>
+    </div>
+    
+    <div class="filter-group">
+      <p>¿Qué hora de resultado has hecho? (± 30 segundos):</p>
+      <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
+      <button onclick="filterByTime()">Buscar</button>
+      <button onclick="resetFilter('time')">Limpiar</button>
+    </div>
+    
+    <button onclick="resetAllFilters()">Limpiar Todo</button>
   </div>
 
   <div id="progress" class="progress">Cargando...</div>
   <div id="gallery" class="gallery"></div>
 
   <script>
-    const offset = 30000;
-    const filename = 'rutamiel2019d.json';
+    const dateOffset = 30000; // 30 seconds in milliseconds
+    const timeOffset = 30;    // 30 seconds
+    const filename = 'rutamiel2019g.json';
 	const batchSize = 10;
 
     let allImages = [];
     let filteredImages = [];
     let currentIndex = 0;
     let loading = false;
+
+    // 🆕 NEW Helper Function: Converts "HH:mm:ss" string to seconds from midnight
+    function timeToSeconds(timeStr) {
+        const parts = timeStr.split(':').map(Number);
+        if (parts.length === 3) {
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        }
+        return NaN;
+    }
 
     async function loadImages() {
       const res = await fetch(filename);
@@ -163,17 +187,60 @@
         alert('Por favor, ingresa un timestamp válido (en milisegundos).');
         return;
       }
-      const lower = timestamp - offset;
-      const upper = timestamp + offset;
+      // Apply the filter on allImages
+      const lower = timestamp - dateOffset;
+      const upper = timestamp + dateOffset;
       filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
+      
+      // Clear other filter input
+      document.getElementById('timeInput').value = '';
+      
       currentIndex = 0;
       document.getElementById('gallery').innerHTML = '';
       updateProgress();
       loadNextBatch();
     }
+    
+    // 🆕 NEW Filter Function: Filters by resulttime (HH:mm:ss) +/- 30 seconds
+    function filterByTime() {
+        const input = document.getElementById('timeInput').value.trim();
+        const inputSeconds = timeToSeconds(input);
+        
+        if (isNaN(inputSeconds) || !/^\d{1,2}:\d{2}:\d{2}$/.test(input)) {
+            alert('Por favor, ingresa una hora válida en formato HH:mm:ss (e.g. 02:15:30).');
+            return;
+        }
 
-    function resetFilter() {
+        const lower = inputSeconds - timeOffset;
+        const upper = inputSeconds + timeOffset;
+
+        // Apply the filter on allImages
+        filteredImages = allImages.filter(img => {
+            const itemSeconds = timeToSeconds(img.resulttime);
+            return itemSeconds >= lower && itemSeconds <= upper;
+        });
+        
+        // Clear other filter input
+        document.getElementById('timestampInput').value = '';
+
+        currentIndex = 0;
+        document.getElementById('gallery').innerHTML = '';
+        updateProgress();
+        loadNextBatch();
+    }
+
+    function resetFilter(type) {
+        if (type === 'timestamp') {
+            document.getElementById('timestampInput').value = '';
+        } else if (type === 'time') {
+            document.getElementById('timeInput').value = '';
+        }
+        resetAllFilters();
+    }
+    
+    function resetAllFilters() {
       document.getElementById('timestampInput').value = '';
+      document.getElementById('timeInput').value = '';
       filteredImages = allImages;
       currentIndex = 0;
       document.getElementById('gallery').innerHTML = '';

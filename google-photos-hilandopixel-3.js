@@ -89,9 +89,10 @@ function parseDate(dateStr) {
       return Array.from(document.querySelectorAll('.p137Zd')).map(el => {
         const bgEl = el.querySelector('.RY3tic');
         const bgUrl = bgEl ? fixBg(bgEl.style.backgroundImage) : null;
+		const pDate = Date.parse(el.getAttribute('aria-label'));
         return {
           href: el.getAttribute('href'),
-          date: el.getAttribute('aria-label'),
+          date: pDate,
           imageUrl: bgUrl
         };
       });
@@ -101,7 +102,7 @@ function parseDate(dateStr) {
     for (const item of batch) {
       const href = normalizeHref(item.href);
       if (href && item.date && !seen.has(href)) {
-        seen.set(href, { href, date: item.date, 'image-url': item.imageUrl });
+        seen.set(href, { href, date: item.date, 'imageurl': item.imageUrl });
         newCount++;
       }
     }
@@ -109,7 +110,7 @@ function parseDate(dateStr) {
   }
 
   console.log('Starting scroll + extract...');
-  for (let round = 1; round <= 1000; round++) {
+  for (let round = 1; round <= 700; round++) {
     const newItems = await extractCurrentItems();
     const total = seen.size;
     console.log(`[${round}] dir=${scrollDirection} | +${newItems} | total=${total}`);
@@ -118,7 +119,7 @@ function parseDate(dateStr) {
     else unchangedScrolls = 0;
     lastCount = total;
 
-    if (unchangedScrolls >= 8) {
+    if (unchangedScrolls >= 10) {
       console.log('No new items for several scrolls — stopping.');
       break;
     }
@@ -128,7 +129,7 @@ function parseDate(dateStr) {
         (sel, direction) => {
           const el = document.querySelector(`.${sel.split(' ')[0]}`);
           if (!el) return;
-          const delta = window.innerHeight * 0.8 * (direction === 'down' ? 1 : -1);
+          const delta = window.innerHeight * 2 * (direction === 'down' ? 1 : -1);
           el.scrollBy({ top: delta, behavior: 'smooth' });
         },
         scrollSelector,
@@ -136,16 +137,12 @@ function parseDate(dateStr) {
       );
     } else {
       await page.evaluate(
-        (direction) => window.scrollBy(0, window.innerHeight * 0.8 * (direction === 'down' ? 1 : -1)),
+        (direction) => window.scrollBy(0, window.innerHeight * 2 * (direction === 'down' ? 1 : -1)),
         scrollDirection
       );
     }
 
-    if (round % 20 === 0) {
-      scrollDirection = scrollDirection === 'down' ? 'up' : 'down';
-    }
-
-    await page.waitForTimeout(1500 + Math.random() * 800);
+    await page.waitForTimeout(3000 + Math.random() * 800);
   }
 
   await extractCurrentItems();
