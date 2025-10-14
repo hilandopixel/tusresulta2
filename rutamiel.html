@@ -1,107 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ruta Miel 2019 - TusResulta2</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fafafa;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .filter {
-      text-align: center;
-      margin-bottom: 20px; 
-    }
-    .filter-group {
-      margin-bottom: 10px;
-    }
-    input {
-      padding: 8px;
-      width: 250px; 
-      font-size: 16px;
-    }
-    button {
-      padding: 8px 12px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .progress {
-      text-align: center;
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 15px;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: transform 0.2s ease;
-    }
-    .card:hover {
-      transform: scale(1.02);
-    }
-    .card img {
-      width: auto;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-      margin: auto;
-    }
-    .date {
-      padding: 10px;
-      color: #333;
-      font-size: 14px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Ruta Miel 2019 - TusResulta2</h1>
-  <div class="filter">
-    <div class="filter-group">
-      <p>¿Qué **Dorsal** llevabas? (Buscar por tiempo de resultado):</p>
-      <input type="text" id="dorsalInput" placeholder="e.g. 523" />
-      <button onclick="filterByDorsal()">Buscar Dorsal</button>
-      <button onclick="resetFilter('dorsal')">Limpiar</button>
-    </div>
-
-    <div class="filter-group">
-      <p>¿Qué hora de resultado has hecho? (± 30 segundos):</p>
-      <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
-      <button onclick="filterByTime()">Buscar</button>
-      <button onclick="resetFilter('time')">Limpiar</button>
-    </div>
-    
-    <div class="filter-group">
-      <p>¿Qué timestamp has hecho? (± 30 segundos):</p>
-      <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
-      <button onclick="filterByDate()">Buscar</button>
-      <button onclick="resetFilter('timestamp')">Limpiar</button>
-    </div>
-    
-    <button onclick="resetAllFilters()">Limpiar Todo</button>
-  </div>
-
-  <div id="progress" class="progress">Cargando...</div>
-  <div id="gallery" class="gallery"></div>
-
-  <script>
+<script>
     const dateOffset = 30000; // 30 seconds in milliseconds
     const timeOffset = 30;    // 30 seconds
     const imageFilename = 'rutamiel2019g.json';
-    const resultFilename = 'rutamiel2019-resultados.json'; // 🆕 NEW results file
+    const resultFilename = 'rutamiel2019-resultados.json'; 
 	const batchSize = 10;
 
     let allImages = [];
@@ -119,12 +20,17 @@
         return NaN;
     }
 
+    // 🛠️ MODIFIED FUNCTION: Fixes TypeError by accessing resultsObj.data
     async function loadResults() {
         try {
             const res = await fetch(resultFilename);
-            const data = await res.json();
+            const resultsObj = await res.json();
+            
+            // FIX APPLIED HERE: The array is nested under the 'data' key in the JSON object
+            const dataArray = resultsObj.data;
+
             // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
-            data.forEach(item => {
+            dataArray.forEach(item => {
                 allResults[item.dorsal.toString()] = item;
             });
             console.log(`Cargados ${Object.keys(allResults).length} resultados de dorsal.`);
@@ -216,7 +122,6 @@
       rootMargin: '200px'
     });
 
-    // 🆕 NEW Function to filter by dorsal number
     function filterByDorsal() {
         const dorsalInput = document.getElementById('dorsalInput').value.trim();
         
@@ -304,7 +209,6 @@
         } else if (type === 'dorsal') {
             document.getElementById('dorsalInput').value = '';
         }
-        // Since one filter resets the others, reset everything to be safe.
         resetAllFilters();
     }
     
@@ -330,8 +234,6 @@
       }
     }
 
-    // 🚀 Initial loading sequence
+    // Initial loading sequence
     loadResults().then(loadImages); 
   </script>
-</body>
-</html>
