@@ -20,13 +20,12 @@
         return NaN;
     }
 
-    // 🛠️ MODIFIED FUNCTION: Fixes TypeError by accessing resultsObj.data
+    // Fixes the previous array issue by accessing resultsObj.data
     async function loadResults() {
         try {
             const res = await fetch(resultFilename);
             const resultsObj = await res.json();
             
-            // FIX APPLIED HERE: The array is nested under the 'data' key in the JSON object
             const dataArray = resultsObj.data;
 
             // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
@@ -46,7 +45,10 @@
       allImages = data.sort((a, b) => a.date - b.date);
       filteredImages = allImages;
       currentIndex = 0;
+      
+      // Line 49 fix: This now runs after the 'gallery' element exists.
       document.getElementById('gallery').innerHTML = '';
+      
       updateProgress();
       loadNextBatch();
       window.addEventListener('scroll', handleScroll);
@@ -137,16 +139,13 @@
             return;
         }
 
-        const tiempo = result.tiempo; // Get the "tiempo" property
+        const tiempo = result.tiempo; 
         
-        // 1. Set the timeInput field value
         document.getElementById('timeInput').value = tiempo;
 
-        // 2. Clear other filter inputs
         document.getElementById('timestampInput').value = '';
-        document.getElementById('dorsalInput').value = dorsalInput; // Keep dorsal visible
+        document.getElementById('dorsalInput').value = dorsalInput; 
 
-        // 3. Submit the time filter
         filterByTime();
     }
 
@@ -162,7 +161,6 @@
       const upper = timestamp + dateOffset;
       filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
       
-      // Clear other filter inputs
       document.getElementById('timeInput').value = '';
       document.getElementById('dorsalInput').value = '';
       
@@ -189,7 +187,6 @@
             return itemSeconds >= lower && itemSeconds <= upper;
         });
         
-        // Clear other filter inputs (except the dorsal if it was used to set time)
         document.getElementById('timestampInput').value = '';
         if (document.activeElement.id !== 'dorsalInput') {
              document.getElementById('dorsalInput').value = '';
@@ -234,6 +231,9 @@
       }
     }
 
-    // Initial loading sequence
-    loadResults().then(loadImages); 
+    // 🌟 FIX APPLIED HERE: Wait for the DOM to be fully loaded before running the functions
+    document.addEventListener('DOMContentLoaded', () => {
+        loadResults().then(loadImages); 
+    });
+    
   </script>
