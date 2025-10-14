@@ -1,20 +1,100 @@
-<div id="progress" class="progress">Cargando...</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ruta Miel 2019 - TusResulta2</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .filter {
+      text-align: center;
+      margin-bottom: 20px; /* Increased margin for new section */
+    }
+    .filter-group {
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 8px;
+      width: 250px; /* Adjusted width */
+      font-size: 16px;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .progress {
+      text-align: center;
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card img {
+      width: auto;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      margin: auto;
+    }
+    .date {
+      padding: 10px;
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ruta Miel 2019 - TusResulta2</h1>
+  <div class="filter">
+   
+    <div class="filter-group">
+      <p>¿Qué tiempo has hecho en formato hh:mm:ss? (± 30 segundos):</p>
+      <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
+      <button onclick="filterByTime()">Buscar</button>
+      <button onclick="resetFilter('time')">Limpiar</button>
+    </div>
+    
+  </div>
+
+  <div id="progress" class="progress">Cargando...</div>
   <div id="gallery" class="gallery"></div>
 
   <script>
     const dateOffset = 30000; // 30 seconds in milliseconds
     const timeOffset = 30;    // 30 seconds
-    const imageFilename = 'rutamiel2019g.json';
-    const resultFilename = 'rutamiel2019-resultados.json'; 
+    const filename = 'rutamiel2019g.json';
 	const batchSize = 10;
 
     let allImages = [];
-    let allResults = {}; // Map for quick dorsal lookup
     let filteredImages = [];
     let currentIndex = 0;
     let loading = false;
 
-    // Helper Function: Converts "HH:mm:ss" string to seconds from midnight
+    // 🆕 NEW Helper Function: Converts "HH:mm:ss" string to seconds from midnight
     function timeToSeconds(timeStr) {
         const parts = timeStr.split(':').map(Number);
         if (parts.length === 3) {
@@ -23,36 +103,13 @@
         return NaN;
     }
 
-    // Fixes array access by using resultsObj.data
-    async function loadResults() {
-        try {
-            const res = await fetch(resultFilename);
-            const resultsObj = await res.json();
-            
-            // FIX: Access the array nested under the 'data' key
-            const dataArray = resultsObj.data;
-
-            // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
-            dataArray.forEach(item => {
-                allResults[item.dorsal.toString()] = item;
-            });
-            console.log(`Cargados ${Object.keys(allResults).length} resultados de dorsal.`);
-        } catch (error) {
-            console.error('Error cargando los resultados de dorsal:', error);
-            alert('No se pudieron cargar los datos de dorsal. El filtro no funcionará.');
-        }
-    }
-
     async function loadImages() {
-      const res = await fetch(imageFilename);
+      const res = await fetch(filename);
       const data = await res.json();
       allImages = data.sort((a, b) => a.date - b.date);
       filteredImages = allImages;
       currentIndex = 0;
-      
-      // This line is the source of the error if the element isn't ready
       document.getElementById('gallery').innerHTML = '';
-      
       updateProgress();
       loadNextBatch();
       window.addEventListener('scroll', handleScroll);
@@ -63,30 +120,31 @@
       card.className = 'card';
 
       const img = document.createElement('img');
-      img.loading = 'lazy'; 
+      img.loading = 'lazy'; // native lazy loading
       img.dataset.src = item.imageurl;
-      img.alt = 'Photo';
+      img.alt = 'Foto';
       observer.observe(img);
 
       const dateDiv = document.createElement('div');
       dateDiv.className = 'date';
-      dateDiv.textContent = item.resulttime + ' (' + item.date + ')';
-      
+      dateDiv.textContent = 'Tiempo: ' + item.resulttime;
+
       const link = document.createElement('a');
-      link.href = item.href; 
-      link.target = '_blank'; 
-      link.textContent = 'Ver Foto Original';
-      link.style.display = 'block'; 
-      link.style.padding = '0 10px 10px'; 
+      link.href = item.href; // Maps to the JSON 'href' property
+      link.target = '_blank'; // Opens in a new tab
+      link.textContent = 'Ver Foto Tamaño Completo';
+      link.style.display = 'block'; // Make it take up its own line
+      link.style.padding = '0 10px 10px'; // Add padding below the date
       link.style.fontSize = '12px';
-      link.style.color = '#0066cc'; 
-      link.style.textDecoration = 'none'; 
+      link.style.color = '#0066cc'; // Simple link color
+      link.style.textDecoration = 'none'; // Remove underline
       link.onmouseover = () => link.style.textDecoration = 'underline';
       link.onmouseout = () => link.style.textDecoration = 'none';
-
+		
       card.appendChild(img);
       card.appendChild(dateDiv);
-      card.appendChild(link);
+	  card.appendChild(link); // Append the new link below the date
+
       return card;
     }
 
@@ -128,52 +186,7 @@
       rootMargin: '200px'
     });
 
-    function filterByDorsal() {
-        const dorsalInput = document.getElementById('dorsalInput').value.trim();
-        
-        if (!dorsalInput || isNaN(parseInt(dorsalInput))) {
-            alert('Por favor, ingresa un número de dorsal válido.');
-            return;
-        }
-
-        const result = allResults[dorsalInput];
-
-        if (!result) {
-            alert(`No se encontró un resultado para el dorsal ${dorsalInput}.`);
-            return;
-        }
-
-        const tiempo = result.tiempo; 
-        
-        document.getElementById('timeInput').value = tiempo;
-
-        document.getElementById('timestampInput').value = '';
-        document.getElementById('dorsalInput').value = dorsalInput; 
-
-        filterByTime();
-    }
-
-
-    function filterByDate() {
-      const input = document.getElementById('timestampInput').value.trim();
-      const timestamp = parseInt(input);
-      if (isNaN(timestamp)) {
-        alert('Por favor, ingresa un timestamp válido (en milisegundos).');
-        return;
-      }
-      const lower = timestamp - dateOffset;
-      const upper = timestamp + dateOffset;
-      filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
-      
-      document.getElementById('timeInput').value = '';
-      document.getElementById('dorsalInput').value = '';
-      
-      currentIndex = 0;
-      document.getElementById('gallery').innerHTML = '';
-      updateProgress();
-      loadNextBatch();
-    }
-    
+    // 🆕 NEW Filter Function: Filters by resulttime (HH:mm:ss) +/- 30 seconds
     function filterByTime() {
         const input = document.getElementById('timeInput').value.trim();
         const inputSeconds = timeToSeconds(input);
@@ -186,15 +199,12 @@
         const lower = inputSeconds - timeOffset;
         const upper = inputSeconds + timeOffset;
 
+        // Apply the filter on allImages
         filteredImages = allImages.filter(img => {
             const itemSeconds = timeToSeconds(img.resulttime);
             return itemSeconds >= lower && itemSeconds <= upper;
         });
         
-        document.getElementById('timestampInput').value = '';
-        if (document.activeElement.id !== 'dorsalInput') {
-             document.getElementById('dorsalInput').value = '';
-        }
 
         currentIndex = 0;
         document.getElementById('gallery').innerHTML = '';
@@ -203,20 +213,14 @@
     }
 
     function resetFilter(type) {
-        if (type === 'timestamp') {
-            document.getElementById('timestampInput').value = '';
-        } else if (type === 'time') {
+        if (type === 'time') {
             document.getElementById('timeInput').value = '';
-        } else if (type === 'dorsal') {
-            document.getElementById('dorsalInput').value = '';
         }
         resetAllFilters();
     }
     
     function resetAllFilters() {
-      document.getElementById('timestampInput').value = '';
       document.getElementById('timeInput').value = '';
-      document.getElementById('dorsalInput').value = '';
       filteredImages = allImages;
       currentIndex = 0;
       document.getElementById('gallery').innerHTML = '';
@@ -235,12 +239,7 @@
       }
     }
 
-    // Since the script is at the end of <body>, we can execute immediately
-    // or rely on DOMContentLoaded for safety. We will keep DOMContentLoaded.
-    document.addEventListener('DOMContentLoaded', () => {
-        loadResults().then(loadImages); 
-    });
-    
+    loadImages();
   </script>
 </body>
 </html>
