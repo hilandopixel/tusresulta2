@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ruta Miel 2019 Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .filter {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 8px;
+      width: 300px;
+      font-size: 16px;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .date {
+      padding: 10px;
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ruta Miel 2019 Gallery</h1>
+  <div class="filter">
+    <p>Enter a Unix timestamp (milliseconds):</p>
+    <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
+    <button onclick="filterByDate()">Filter</button>
+    <button onclick="resetFilter()">Reset</button>
+  </div>
+  <div id="gallery" class="gallery"></div>
+
+  <script>
+    let images = [];
+    let allImages = [];
+
+    async function loadImages() {
+      const res = await fetch('rutamiel2019c.json');
+      const data = await res.json();
+      allImages = data.sort((a, b) => a.date - b.date);
+      renderGallery(allImages);
+    }
+
+    function renderGallery(list) {
+      const container = document.getElementById('gallery');
+      container.innerHTML = '';
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = 'Photo';
+
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'date';
+        const date = new Date(item.date);
+        dateDiv.textContent = date.toLocaleString() + ' (' + item.date + ')';
+
+        card.appendChild(img);
+        card.appendChild(dateDiv);
+        container.appendChild(card);
+      });
+    }
+
+    function filterByDate() {
+      const input = document.getElementById('timestampInput').value.trim();
+      const timestamp = parseInt(input);
+      if (isNaN(timestamp)) {
+        alert('Please enter a valid Unix timestamp in milliseconds.');
+        return;
+      }
+
+      const lower = timestamp - 60000; // 1 minute earlier
+      const upper = timestamp + 60000; // 1 minute later
+      const filtered = allImages.filter(img => img.date >= lower && img.date <= upper);
+      renderGallery(filtered);
+    }
+
+    function resetFilter() {
+      document.getElementById('timestampInput').value = '';
+      renderGallery(allImages);
+    }
+
+    loadImages();
+  </script>
+</body>
+</html>
