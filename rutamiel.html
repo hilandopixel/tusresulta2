@@ -123,20 +123,28 @@
       img.loading = 'lazy'; // native lazy loading
       img.dataset.src = item.imageurl;
       img.alt = 'Foto';
-	  img.href = item.href;
       observer.observe(img);
 
       const dateDiv = document.createElement('div');
       dateDiv.className = 'date';
       dateDiv.textContent = 'Tiempo: ' + item.resulttime;
 
-	  const imglink = document.createElement('a');
-		imglink.href = item.href;
-		imglink.target = '_blank'
+      const link = document.createElement('a');
+      link.href = item.href; // Maps to the JSON 'href' property
+      link.target = '_blank'; // Opens in a new tab
+      link.textContent = 'Ver Foto Original';
+      link.style.display = 'block'; // Make it take up its own line
+      link.style.padding = '0 10px 10px'; // Add padding below the date
+      link.style.fontSize = '12px';
+      link.style.color = '#0066cc'; // Simple link color
+      link.style.textDecoration = 'none'; // Remove underline
+      link.onmouseover = () => link.style.textDecoration = 'underline';
+      link.onmouseout = () => link.style.textDecoration = 'none';
 		
       card.appendChild(img);
       card.appendChild(dateDiv);
-	  card.appendChild(imglink)
+	  card.appendChild(link); // Append the new link below the date
+
       return card;
     }
 
