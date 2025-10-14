@@ -65,7 +65,7 @@
   </style>
 </head>
 <body>
-  <h1>Ruta Miel 2019 Gallery</h1>
+  <h1>Ruta Miel 2019 - TusResulta2</h1>
   <div class="filter">
     <p>¿Qué tiempo has hecho?:</p>
     <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
@@ -79,10 +79,11 @@
   <script>
     const offset = 30000;
     const filename = 'rutamiel2019d.json';
+	const batchSize = 10;
+
     let allImages = [];
     let filteredImages = [];
     let currentIndex = 0;
-    const batchSize = 5;
     let loading = false;
 
     async function loadImages() {
@@ -110,8 +111,7 @@
 
       const dateDiv = document.createElement('div');
       dateDiv.className = 'date';
-      const date = new Date(item.date);
-      dateDiv.textContent = date.toLocaleString() + ' (' + item.date + ')';
+      dateDiv.textContent = item.resulttime + ' (' + item.date + ')';
 
       card.appendChild(img);
       card.appendChild(dateDiv);
