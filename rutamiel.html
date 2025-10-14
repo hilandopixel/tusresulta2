@@ -186,27 +186,6 @@
       rootMargin: '200px'
     });
 
-    function filterByDate() {
-      const input = document.getElementById('timestampInput').value.trim();
-      const timestamp = parseInt(input);
-      if (isNaN(timestamp)) {
-        alert('Por favor, ingresa un timestamp válido (en milisegundos).');
-        return;
-      }
-      // Apply the filter on allImages
-      const lower = timestamp - dateOffset;
-      const upper = timestamp + dateOffset;
-      filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
-      
-      // Clear other filter input
-      document.getElementById('timeInput').value = '';
-      
-      currentIndex = 0;
-      document.getElementById('gallery').innerHTML = '';
-      updateProgress();
-      loadNextBatch();
-    }
-    
     // 🆕 NEW Filter Function: Filters by resulttime (HH:mm:ss) +/- 30 seconds
     function filterByTime() {
         const input = document.getElementById('timeInput').value.trim();
@@ -226,8 +205,6 @@
             return itemSeconds >= lower && itemSeconds <= upper;
         });
         
-        // Clear other filter input
-        document.getElementById('timestampInput').value = '';
 
         currentIndex = 0;
         document.getElementById('gallery').innerHTML = '';
@@ -236,9 +213,7 @@
     }
 
     function resetFilter(type) {
-        if (type === 'timestamp') {
-            document.getElementById('timestampInput').value = '';
-        } else if (type === 'time') {
+        if (type === 'time') {
             document.getElementById('timeInput').value = '';
         }
         resetAllFilters();
