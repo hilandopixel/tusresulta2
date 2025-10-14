@@ -45,7 +45,7 @@
       transform: scale(1.02);
     }
     .card img {
-      width: 100%;
+      width: auto;
       height: 200px;
       object-fit: cover;
     }
@@ -71,7 +71,7 @@
     let allImages = [];
 
     async function loadImages() {
-      const res = await fetch('rutamiel2019c.json');
+      const res = await fetch('rutamiel2019d.json');
       const data = await res.json();
       allImages = data.sort((a, b) => a.date - b.date);
       renderGallery(allImages);
