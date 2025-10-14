@@ -20,16 +20,18 @@
         return NaN;
     }
 
-    // Fixes the previous array issue by accessing resultsObj.data
+    // Fixes array access by using resultsObj.data
     async function loadResults() {
         try {
             const res = await fetch(resultFilename);
             const resultsObj = await res.json();
             
+            // FIX: Access the array nested under the 'data' key
             const dataArray = resultsObj.data;
 
             // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
             dataArray.forEach(item => {
+                // Ensure dorsal is stored as a string key
                 allResults[item.dorsal.toString()] = item;
             });
             console.log(`Cargados ${Object.keys(allResults).length} resultados de dorsal.`);
@@ -46,11 +48,12 @@
       filteredImages = allImages;
       currentIndex = 0;
       
-      // Line 49 fix: This now runs after the 'gallery' element exists.
+      // FIX: This now safely runs after DOMContentLoaded, guaranteeing 'gallery' exists.
       document.getElementById('gallery').innerHTML = '';
       
       updateProgress();
       loadNextBatch();
+      // Only attach scroll listener once all initial items are loaded
       window.addEventListener('scroll', handleScroll);
     }
 
@@ -141,11 +144,14 @@
 
         const tiempo = result.tiempo; 
         
+        // 1. Set the timeInput field value
         document.getElementById('timeInput').value = tiempo;
 
+        // 2. Clear other filter inputs
         document.getElementById('timestampInput').value = '';
         document.getElementById('dorsalInput').value = dorsalInput; 
 
+        // 3. Trigger the time filter
         filterByTime();
     }
 
@@ -188,6 +194,7 @@
         });
         
         document.getElementById('timestampInput').value = '';
+        // Clear dorsal input only if the time filter was NOT triggered by the dorsal filter
         if (document.activeElement.id !== 'dorsalInput') {
              document.getElementById('dorsalInput').value = '';
         }
@@ -231,9 +238,9 @@
       }
     }
 
-    // 🌟 FIX APPLIED HERE: Wait for the DOM to be fully loaded before running the functions
+    // 🌟 THE FIX: Wait for the DOM to be fully loaded before running the functions
     document.addEventListener('DOMContentLoaded', () => {
         loadResults().then(loadImages); 
     });
     
-  </script>
+</script>
