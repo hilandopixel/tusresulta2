@@ -70,21 +70,14 @@
 <body>
   <h1>Ruta Miel 2019 - TusResulta2</h1>
   <div class="filter">
+   
     <div class="filter-group">
-      <p>¿Qué timestamp has hecho? (± 30 segundos):</p>
-      <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
-      <button onclick="filterByDate()">Buscar</button>
-      <button onclick="resetFilter('timestamp')">Limpiar</button>
-    </div>
-    
-    <div class="filter-group">
-      <p>¿Qué hora de resultado has hecho? (± 30 segundos):</p>
+      <p>¿Qué tiempo has hecho en formato hh:mm:ss? (± 30 segundos):</p>
       <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
       <button onclick="filterByTime()">Buscar</button>
       <button onclick="resetFilter('time')">Limpiar</button>
     </div>
     
-    <button onclick="resetAllFilters()">Limpiar Todo</button>
   </div>
 
   <div id="progress" class="progress">Cargando...</div>
@@ -129,16 +122,21 @@
       const img = document.createElement('img');
       img.loading = 'lazy'; // native lazy loading
       img.dataset.src = item.imageurl;
-      img.alt = 'Photo';
+      img.alt = 'Foto';
 	  img.href = item.href;
       observer.observe(img);
 
       const dateDiv = document.createElement('div');
       dateDiv.className = 'date';
-      dateDiv.textContent = item.resulttime + ' (' + item.date + ')';
+      dateDiv.textContent = 'Tiempo: ' + item.resulttime;
 
+	  const imglink = document.createElement('a');
+		imglink.href = item.href;
+		imglink.target = '_blank'
+		
       card.appendChild(img);
       card.appendChild(dateDiv);
+	  card.appendChild(imglink)
       return card;
     }
 
