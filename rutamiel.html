@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ruta Miel 2019 Gallery</title>
+  <title>Ruta Miel 2019 - TusResulta2</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,7 +16,7 @@
     }
     .filter {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
     input {
       padding: 8px;
@@ -27,6 +27,12 @@
       padding: 8px 12px;
       font-size: 16px;
       cursor: pointer;
+    }
+    .progress {
+      text-align: center;
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
     }
     .gallery {
       display: grid;
@@ -48,6 +54,8 @@
       width: auto;
       height: 200px;
       object-fit: cover;
+      display: block;
+      margin: auto;
     }
     .date {
       padding: 10px;
@@ -59,63 +67,129 @@
 <body>
   <h1>Ruta Miel 2019 Gallery</h1>
   <div class="filter">
-    <p>Enter a Unix timestamp (milliseconds):</p>
+    <p>¿Qué tiempo has hecho?:</p>
     <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
-    <button onclick="filterByDate()">Filter</button>
-    <button onclick="resetFilter()">Reset</button>
+    <button onclick="filterByDate()">Buscar</button>
+    <button onclick="resetFilter()">Limpiar filtro</button>
   </div>
+
+  <div id="progress" class="progress">Cargando...</div>
   <div id="gallery" class="gallery"></div>
 
   <script>
-    let images = [];
+    const offset = 30000;
+    const filename = 'rutamiel2019d.json';
     let allImages = [];
+    let filteredImages = [];
+    let currentIndex = 0;
+    const batchSize = 5;
+    let loading = false;
 
     async function loadImages() {
-      const res = await fetch('rutamiel2019d.json');
+      const res = await fetch(filename);
       const data = await res.json();
       allImages = data.sort((a, b) => a.date - b.date);
-      renderGallery(allImages);
+      filteredImages = allImages;
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
+      window.addEventListener('scroll', handleScroll);
     }
 
-    function renderGallery(list) {
-      const container = document.getElementById('gallery');
-      container.innerHTML = '';
-      list.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
+    function createCard(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
 
-        const img = document.createElement('img');
-        img.src = item.imageurl;
-        img.alt = 'Photo';
+      const img = document.createElement('img');
+      img.loading = 'lazy'; // native lazy loading
+      img.dataset.src = item.imageurl;
+      img.alt = 'Photo';
+	  img.href = item.href;
+      observer.observe(img);
 
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'date';
-        const date = new Date(item.date);
-        dateDiv.textContent = date.toLocaleString() + ' (' + item.date + ')';
+      const dateDiv = document.createElement('div');
+      dateDiv.className = 'date';
+      const date = new Date(item.date);
+      dateDiv.textContent = date.toLocaleString() + ' (' + item.date + ')';
 
-        card.appendChild(img);
-        card.appendChild(dateDiv);
-        container.appendChild(card);
+      card.appendChild(img);
+      card.appendChild(dateDiv);
+      return card;
+    }
+
+    function loadNextBatch() {
+      if (loading) return;
+      loading = true;
+
+      const gallery = document.getElementById('gallery');
+      const nextItems = filteredImages.slice(currentIndex, currentIndex + batchSize);
+
+      nextItems.forEach(item => {
+        const card = createCard(item);
+        gallery.appendChild(card);
       });
+
+      currentIndex += nextItems.length;
+      updateProgress();
+      loading = false;
     }
+
+    function handleScroll() {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+        if (currentIndex < filteredImages.length) {
+          loadNextBatch();
+        }
+      }
+    }
+
+    // IntersectionObserver for real lazy loading
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          obs.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '200px'
+    });
 
     function filterByDate() {
       const input = document.getElementById('timestampInput').value.trim();
       const timestamp = parseInt(input);
       if (isNaN(timestamp)) {
-        alert('Please enter a valid Unix timestamp in milliseconds.');
+        alert('Por favor, ingresa un timestamp válido (en milisegundos).');
         return;
       }
-
-      const lower = timestamp - 60000; // 1 minute earlier
-      const upper = timestamp + 60000; // 1 minute later
-      const filtered = allImages.filter(img => img.date >= lower && img.date <= upper);
-      renderGallery(filtered);
+      const lower = timestamp - offset;
+      const upper = timestamp + offset;
+      filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
     }
 
     function resetFilter() {
       document.getElementById('timestampInput').value = '';
-      renderGallery(allImages);
+      filteredImages = allImages;
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
+    }
+
+    function updateProgress() {
+      const progress = document.getElementById('progress');
+      const total = filteredImages.length;
+      const shown = Math.min(currentIndex, total);
+      if (total === 0) {
+        progress.textContent = 'No hay imágenes para mostrar.';
+      } else {
+        progress.textContent = `Mostrando ${shown} / ${total} fotos`;
+      }
     }
 
     loadImages();
