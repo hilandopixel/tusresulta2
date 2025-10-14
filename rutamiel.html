@@ -16,14 +16,14 @@
     }
     .filter {
       text-align: center;
-      margin-bottom: 20px; /* Increased margin for new section */
+      margin-bottom: 20px; 
     }
     .filter-group {
       margin-bottom: 10px;
     }
     input {
       padding: 8px;
-      width: 250px; /* Adjusted width */
+      width: 250px; 
       font-size: 16px;
     }
     button {
@@ -70,14 +70,28 @@
 <body>
   <h1>Ruta Miel 2019 - TusResulta2</h1>
   <div class="filter">
-   
     <div class="filter-group">
-      <p>¿Qué tiempo has hecho en formato hh:mm:ss? (± 30 segundos):</p>
+      <p>¿Qué **Dorsal** llevabas? (Buscar por tiempo de resultado):</p>
+      <input type="text" id="dorsalInput" placeholder="e.g. 523" />
+      <button onclick="filterByDorsal()">Buscar Dorsal</button>
+      <button onclick="resetFilter('dorsal')">Limpiar</button>
+    </div>
+
+    <div class="filter-group">
+      <p>¿Qué hora de resultado has hecho? (± 30 segundos):</p>
       <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
       <button onclick="filterByTime()">Buscar</button>
       <button onclick="resetFilter('time')">Limpiar</button>
     </div>
     
+    <div class="filter-group">
+      <p>¿Qué timestamp has hecho? (± 30 segundos):</p>
+      <input type="text" id="timestampInput" placeholder="e.g. 1573982000000" />
+      <button onclick="filterByDate()">Buscar</button>
+      <button onclick="resetFilter('timestamp')">Limpiar</button>
+    </div>
+    
+    <button onclick="resetAllFilters()">Limpiar Todo</button>
   </div>
 
   <div id="progress" class="progress">Cargando...</div>
@@ -86,15 +100,17 @@
   <script>
     const dateOffset = 30000; // 30 seconds in milliseconds
     const timeOffset = 30;    // 30 seconds
-    const filename = 'rutamiel2019g.json';
+    const imageFilename = 'rutamiel2019g.json';
+    const resultFilename = 'rutamiel2019-resultados.json'; // 🆕 NEW results file
 	const batchSize = 10;
 
     let allImages = [];
+    let allResults = {}; // Map for quick dorsal lookup
     let filteredImages = [];
     let currentIndex = 0;
     let loading = false;
 
-    // 🆕 NEW Helper Function: Converts "HH:mm:ss" string to seconds from midnight
+    // Helper Function: Converts "HH:mm:ss" string to seconds from midnight
     function timeToSeconds(timeStr) {
         const parts = timeStr.split(':').map(Number);
         if (parts.length === 3) {
@@ -103,8 +119,23 @@
         return NaN;
     }
 
+    async function loadResults() {
+        try {
+            const res = await fetch(resultFilename);
+            const data = await res.json();
+            // Convert array to a map { "dorsal": {tiempo: "02:15:30", ...} }
+            data.forEach(item => {
+                allResults[item.dorsal.toString()] = item;
+            });
+            console.log(`Cargados ${Object.keys(allResults).length} resultados de dorsal.`);
+        } catch (error) {
+            console.error('Error cargando los resultados de dorsal:', error);
+            alert('No se pudieron cargar los datos de dorsal. El filtro no funcionará.');
+        }
+    }
+
     async function loadImages() {
-      const res = await fetch(filename);
+      const res = await fetch(imageFilename);
       const data = await res.json();
       allImages = data.sort((a, b) => a.date - b.date);
       filteredImages = allImages;
@@ -120,31 +151,30 @@
       card.className = 'card';
 
       const img = document.createElement('img');
-      img.loading = 'lazy'; // native lazy loading
+      img.loading = 'lazy'; 
       img.dataset.src = item.imageurl;
-      img.alt = 'Foto';
+      img.alt = 'Photo';
       observer.observe(img);
 
       const dateDiv = document.createElement('div');
       dateDiv.className = 'date';
-      dateDiv.textContent = 'Tiempo: ' + item.resulttime;
-
+      dateDiv.textContent = item.resulttime + ' (' + item.date + ')';
+      
       const link = document.createElement('a');
-      link.href = item.href; // Maps to the JSON 'href' property
-      link.target = '_blank'; // Opens in a new tab
+      link.href = item.href; 
+      link.target = '_blank'; 
       link.textContent = 'Ver Foto Original';
-      link.style.display = 'block'; // Make it take up its own line
-      link.style.padding = '0 10px 10px'; // Add padding below the date
+      link.style.display = 'block'; 
+      link.style.padding = '0 10px 10px'; 
       link.style.fontSize = '12px';
-      link.style.color = '#0066cc'; // Simple link color
-      link.style.textDecoration = 'none'; // Remove underline
+      link.style.color = '#0066cc'; 
+      link.style.textDecoration = 'none'; 
       link.onmouseover = () => link.style.textDecoration = 'underline';
       link.onmouseout = () => link.style.textDecoration = 'none';
-		
+
       card.appendChild(img);
       card.appendChild(dateDiv);
-	  card.appendChild(link); // Append the new link below the date
-
+      card.appendChild(link);
       return card;
     }
 
@@ -186,7 +216,57 @@
       rootMargin: '200px'
     });
 
-    // 🆕 NEW Filter Function: Filters by resulttime (HH:mm:ss) +/- 30 seconds
+    // 🆕 NEW Function to filter by dorsal number
+    function filterByDorsal() {
+        const dorsalInput = document.getElementById('dorsalInput').value.trim();
+        
+        if (!dorsalInput || isNaN(parseInt(dorsalInput))) {
+            alert('Por favor, ingresa un número de dorsal válido.');
+            return;
+        }
+
+        const result = allResults[dorsalInput];
+
+        if (!result) {
+            alert(`No se encontró un resultado para el dorsal ${dorsalInput}.`);
+            return;
+        }
+
+        const tiempo = result.tiempo; // Get the "tiempo" property
+        
+        // 1. Set the timeInput field value
+        document.getElementById('timeInput').value = tiempo;
+
+        // 2. Clear other filter inputs
+        document.getElementById('timestampInput').value = '';
+        document.getElementById('dorsalInput').value = dorsalInput; // Keep dorsal visible
+
+        // 3. Submit the time filter
+        filterByTime();
+    }
+
+
+    function filterByDate() {
+      const input = document.getElementById('timestampInput').value.trim();
+      const timestamp = parseInt(input);
+      if (isNaN(timestamp)) {
+        alert('Por favor, ingresa un timestamp válido (en milisegundos).');
+        return;
+      }
+      const lower = timestamp - dateOffset;
+      const upper = timestamp + dateOffset;
+      filteredImages = allImages.filter(img => img.date >= lower && img.date <= upper);
+      
+      // Clear other filter inputs
+      document.getElementById('timeInput').value = '';
+      document.getElementById('dorsalInput').value = '';
+      
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
+    }
+    
     function filterByTime() {
         const input = document.getElementById('timeInput').value.trim();
         const inputSeconds = timeToSeconds(input);
@@ -199,12 +279,16 @@
         const lower = inputSeconds - timeOffset;
         const upper = inputSeconds + timeOffset;
 
-        // Apply the filter on allImages
         filteredImages = allImages.filter(img => {
             const itemSeconds = timeToSeconds(img.resulttime);
             return itemSeconds >= lower && itemSeconds <= upper;
         });
         
+        // Clear other filter inputs (except the dorsal if it was used to set time)
+        document.getElementById('timestampInput').value = '';
+        if (document.activeElement.id !== 'dorsalInput') {
+             document.getElementById('dorsalInput').value = '';
+        }
 
         currentIndex = 0;
         document.getElementById('gallery').innerHTML = '';
@@ -213,14 +297,21 @@
     }
 
     function resetFilter(type) {
-        if (type === 'time') {
+        if (type === 'timestamp') {
+            document.getElementById('timestampInput').value = '';
+        } else if (type === 'time') {
             document.getElementById('timeInput').value = '';
+        } else if (type === 'dorsal') {
+            document.getElementById('dorsalInput').value = '';
         }
+        // Since one filter resets the others, reset everything to be safe.
         resetAllFilters();
     }
     
     function resetAllFilters() {
+      document.getElementById('timestampInput').value = '';
       document.getElementById('timeInput').value = '';
+      document.getElementById('dorsalInput').value = '';
       filteredImages = allImages;
       currentIndex = 0;
       document.getElementById('gallery').innerHTML = '';
@@ -239,7 +330,8 @@
       }
     }
 
-    loadImages();
+    // 🚀 Initial loading sequence
+    loadResults().then(loadImages); 
   </script>
 </body>
 </html>
