@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Maraton Subbetico Mozarabe">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta content="carrera, fotos, running, tusresulta2, rutamiel" name="keywords">
+    <meta content="Búsqueda de fotos y resultados de la Ruta de la miel 2025" name="description">
+    <meta property="og:image" content="https://hilandopixel.github.io/tusresulta2/tusresulta2-preview.png">
+    <meta property="og:title" content="Ruta Miel 2025 Prueba Reina - TusResulta2 - Búsqueda de fotos" />
+    <meta property="og:description" content="Búsqueda de fotos y resultados de la Ruta de la miel 2025" />
+    <title>Ruta Miel 2025 Prueba Reina - TusResulta2 - Búsqueda de fotos</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="icon" href="assets/favicon.ico">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-pink {
+            background: #DC295A !important;
+            color: black !important;
+        }
+
+        .custom-lightblue {
+            background: #4BC8D8 !important;
+            color: black !important;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #09C;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .filter {
+            text-align: center;
+            margin-bottom: 20px; /* Increased margin for new section */
+        }
+
+        .filter-group {
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 8px;
+            width: 250px; /* Adjusted width */
+            font-size: 16px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .progress {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+            .card:hover {
+                transform: scale(1.02);
+            }
+
+            .card img {
+                width: auto;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+                margin: auto;
+            }
+
+        .date {
+            padding: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ruta Miel 2019 - TusResulta2</h1>
+    <div class="gallery">
+            <img src="./logo-organizacion.png" />
+        <div class="card custom-pink">
+            <div class="filter">
+
+                <div class="filter-group">
+                    <p>¿Qué tiempo has hecho en formato hh:mm:ss? (± 30 segundos):</p>
+                    <input type="text" id="timeInput" placeholder="e.g. 02:15:30" />
+                    <button class="custom-lightblue" onclick="filterByTime()">Buscar</button>
+                    <button class="custom-lightblue" onclick="resetFilter('time')">Limpiar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="gallery" class="gallery">
+        <div id="progress" class="progress">Cargando...</div>
+
+
+    </div>
+
+    <script>
+    const dateOffset = 30000; // 30 seconds in milliseconds
+    const timeOffset = 30;    // 30 seconds
+    const filename = 'rutamiel2019g.json';
+	const batchSize = 10;
+
+    let allImages = [];
+    let filteredImages = [];
+    let currentIndex = 0;
+    let loading = false;
+
+    // 🆕 NEW Helper Function: Converts "HH:mm:ss" string to seconds from midnight
+    function timeToSeconds(timeStr) {
+        const parts = timeStr.split(':').map(Number);
+        if (parts.length === 3) {
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        }
+        return NaN;
+    }
+
+    async function loadImages() {
+      const res = await fetch(filename);
+      const data = await res.json();
+      allImages = data.sort((a, b) => a.date - b.date);
+      filteredImages = allImages;
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
+      window.addEventListener('scroll', handleScroll);
+    }
+
+    function createCard(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy'; // native lazy loading
+      img.dataset.src = item.imageurl;
+      img.alt = 'Foto';
+      observer.observe(img);
+
+      const dateDiv = document.createElement('div');
+      dateDiv.className = 'date';
+      dateDiv.textContent = 'Tiempo: ' + item.resulttime;
+
+      const link = document.createElement('a');
+      link.href = item.href; // Maps to the JSON 'href' property
+      link.target = '_blank'; // Opens in a new tab
+      link.textContent = 'Ver Foto Tamaño Completo';
+      link.style.display = 'block'; // Make it take up its own line
+      link.style.padding = '0 10px 10px'; // Add padding below the date
+      link.style.fontSize = '12px';
+      link.style.color = '#0066cc'; // Simple link color
+      link.style.textDecoration = 'none'; // Remove underline
+      link.onmouseover = () => link.style.textDecoration = 'underline';
+      link.onmouseout = () => link.style.textDecoration = 'none';
+
+      card.appendChild(img);
+      card.appendChild(dateDiv);
+	  card.appendChild(link); // Append the new link below the date
+
+      return card;
+    }
+
+    function loadNextBatch() {
+      if (loading) return;
+      loading = true;
+
+      const gallery = document.getElementById('gallery');
+      const nextItems = filteredImages.slice(currentIndex, currentIndex + batchSize);
+
+      nextItems.forEach(item => {
+        const card = createCard(item);
+        gallery.appendChild(card);
+      });
+
+      currentIndex += nextItems.length;
+      updateProgress();
+      loading = false;
+    }
+
+    function handleScroll() {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+        if (currentIndex < filteredImages.length) {
+          loadNextBatch();
+        }
+      }
+    }
+
+    // IntersectionObserver for real lazy loading
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          obs.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '200px'
+    });
+
+    // 🆕 NEW Filter Function: Filters by resulttime (HH:mm:ss) +/- 30 seconds
+    function filterByTime() {
+        const input = document.getElementById('timeInput').value.trim();
+        const inputSeconds = timeToSeconds(input);
+
+        if (isNaN(inputSeconds) || !/^\d{1,2}:\d{2}:\d{2}$/.test(input)) {
+            alert('Por favor, ingresa una hora válida en formato HH:mm:ss (e.g. 02:15:30).');
+            return;
+        }
+
+        const lower = inputSeconds - timeOffset;
+        const upper = inputSeconds + timeOffset;
+
+        // Apply the filter on allImages
+        filteredImages = allImages.filter(img => {
+            const itemSeconds = timeToSeconds(img.resulttime);
+            return itemSeconds >= lower && itemSeconds <= upper;
+        });
+
+
+        currentIndex = 0;
+        document.getElementById('gallery').innerHTML = '';
+        updateProgress();
+        loadNextBatch();
+    }
+
+    function resetFilter(type) {
+        if (type === 'time') {
+            document.getElementById('timeInput').value = '';
+        }
+        resetAllFilters();
+    }
+
+    function resetAllFilters() {
+      document.getElementById('timeInput').value = '';
+      filteredImages = allImages;
+      currentIndex = 0;
+      document.getElementById('gallery').innerHTML = '';
+      updateProgress();
+      loadNextBatch();
+    }
+
+    function updateProgress() {
+      const progress = document.getElementById('progress');
+      const total = filteredImages.length;
+      const shown = Math.min(currentIndex, total);
+      if (total === 0) {
+        progress.textContent = 'No hay imágenes para mostrar.';
+      } else {
+        progress.textContent = `Mostrando ${shown} / ${total} fotos`;
+      }
+    }
+
+    loadImages();
+    </script>
+</body>
+</html>
