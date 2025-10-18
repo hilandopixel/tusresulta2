@@ -121,3 +121,13 @@ button {
         background-color: #0056b3; /* Darker blue on mouse-over */
         border-color: #0056b3;
     }
+
+/* Force Header Hiding for the Card View Aesthetic on ALL screens */
+#dataTable thead {
+    display: none;
+}
+
+/* Adjust the search and control section to be slightly wider */
+.dataTables_wrapper .row:first-child {
+    margin-bottom: 20px;
+}
