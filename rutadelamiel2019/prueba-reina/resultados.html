@@ -94,7 +94,7 @@
 
             const link = document.createElement('a');
             link.className = 'custom-lightblue'
-            link.href = item.href; // Maps to the JSON 'href' property
+            link.href = item.imageurl; // Maps to the JSON 'href' property
             link.target = '_blank'; // Opens in a new tab
             link.textContent = 'Ver Foto Tamaño Completo';
             link.style.display = 'block'; // Make it take up its own line
@@ -104,7 +104,7 @@
             link.style.textDecoration = 'none'; // Remove underline
             link.onmouseover = () => link.style.textDecoration = 'underline';
             link.onmouseout = () => link.style.textDecoration = 'none';
-
+            link.download = 'foto.jpg'
             card.appendChild(img);
             card.appendChild(dateDiv);
             card.appendChild(link); // Append the new link below the date

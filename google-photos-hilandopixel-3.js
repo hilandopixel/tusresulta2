@@ -3,25 +3,35 @@
  * extract_album_links_with_bg.js
  *
  * Usage:
- *   node extract_album_links_with_bg.js "https://photos.app.goo.gl/YourAlbumURL" ./output.json
+ * node extract_album_links_with_bg.js "<ALBUM_URL>" "<OUTPUT_JSON>" <WIDTH> <HEIGHT>
  *
  * Extracts:
- *   - href (normalized to https://photos.google.com/share/…)
- *   - aria-label (date)
- *   - background-image url from .RY3tic elements (image-url)
+ * - href (normalized to https://photos.google.com/share/…)
+ * - aria-label (date)
+ * - background-image url from .RY3tic elements (image-url)
+ *
+ * Replaces size in imageUrl (e.g., '=w403-h303-no') with the provided WIDTH and HEIGHT.
  */
 
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-if (process.argv.length < 4) {
-  console.error('Usage: node extract_album_links_with_bg.js "<ALBUM_URL>" "<OUTPUT_JSON>"');
+if (process.argv.length < 6) {
+  console.error('Usage: node extract_album_links_with_bg.js "<ALBUM_URL>" "<OUTPUT_JSON>" <WIDTH> <HEIGHT>');
+  console.error('Example: node extract_album_links_with_bg.js "https://photos.app.goo.gl/..." ./output.json 1600 900');
   process.exit(1);
 }
 
 const ALBUM_URL = process.argv[2];
 const OUTPUT_PATH = path.resolve(process.argv[3]);
+const TARGET_WIDTH = parseInt(process.argv[4]);
+const TARGET_HEIGHT = parseInt(process.argv[5]);
+
+if (isNaN(TARGET_WIDTH) || isNaN(TARGET_HEIGHT) || TARGET_WIDTH <= 0 || TARGET_HEIGHT <= 0) {
+    console.error('ERROR: <WIDTH> and <HEIGHT> must be positive integers.');
+    process.exit(1);
+}
 
 function normalizeHref(href) {
   if (!href) return null;
@@ -32,6 +42,24 @@ function normalizeHref(href) {
   if (href.startsWith('http'))
     return href;
   return 'https://photos.google.com/share/' + href.replace(/^\/?share\//, '');
+}
+
+/**
+ * Cleans the Google Photos image URL and injects the new size.
+ * @param {string} url The extracted image URL.
+ * @param {number} width The target width.
+ * @param {number} height The target height.
+ * @returns {string} The resized image URL.
+ */
+function resizeImageUrl(url, width, height) {
+    if (!url) return null;
+
+    // 1. Remove existing size parameters (e.g., "=w403-h303-no")
+    // This regex looks for '=w' followed by numbers, an optional '-h' and numbers, and optional further parameters like '-no'.
+    const cleanedUrl = url.replace(/=w\d+(-h\d+)?(-[a-z]+)*\/?$/, '');
+
+    // 2. Append the new size parameters
+    return `${cleanedUrl}=w${width}-h${height}`;
 }
 
 function parseDate(dateStr) {
@@ -79,11 +107,21 @@ function parseDate(dateStr) {
   let scrollDirection = 'down';
 
   async function extractCurrentItems() {
-    const batch = await page.evaluate(() => {
+    // Pass target size parameters to the page evaluation context
+    const batch = await page.evaluate((targetW, targetH) => {
+      
+      const resizeUrl = (url, width, height) => {
+          if (!url) return null;
+          // 1. Remove existing size parameters (e.g., "=w403-h303-no")
+          const cleanUrl = url.replace(/=w\d+-h\d+-no$/, ''); 
+		return `${cleanUrl}=w${width}-h${height}-no`;
+      };
+
       const fixBg = (style) => {
         if (!style) return null;
         const m = style.match(/url\(["']?(.*?)["']?\)/);
-        return m ? m[1] : null;
+        const rawUrl = m ? m[1] : null;
+        return rawUrl ? resizeUrl(rawUrl, targetW, targetH) : null;
       };
 
       return Array.from(document.querySelectorAll('.p137Zd')).map(el => {
@@ -96,7 +134,7 @@ function parseDate(dateStr) {
           imageUrl: bgUrl
         };
       });
-    });
+    }, TARGET_WIDTH, TARGET_HEIGHT); // Pass variables here
 
     let newCount = 0;
     for (const item of batch) {
