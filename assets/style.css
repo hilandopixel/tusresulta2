@@ -131,3 +131,48 @@ button {
 .dataTables_wrapper .row:first-child {
     margin-bottom: 20px;
 }
+
+/* Custom styles for the results card view */
+.result-card-container {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa; /* Light background for the collapsible section */
+    border-radius: 8px;
+}
+
+.result-item-card {
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-left: 5px solid var(--custom-lightblue); /* Highlight border */
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    font-size: 0.9rem;
+}
+
+    .result-item-card strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+        color: var(--custom-text);
+    }
+
+    .result-item-card span {
+        display: block;
+        color: #6c757d;
+    }
+
+    .result-item-card .posicion {
+        float: right;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--custom-pink);
+    }
+/* Assuming custom-lightblue class styling for buttons */
+.custom-lightblue {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
