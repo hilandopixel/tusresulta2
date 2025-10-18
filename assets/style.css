@@ -3,7 +3,7 @@
 }
 
 .custom-pink {
-    background: #DC295A !important;
+    background: #ff006b !important;
     color: white !important;
 }
 
@@ -21,7 +21,7 @@
 }
 
 .custom-text-pink {
-    color: #DC295A !important;
+    color: #ff006b !important;
 }
 
 body {
@@ -171,8 +171,4 @@ button {
         font-weight: 700;
         color: var(--custom-pink);
     }
-/* Assuming custom-lightblue class styling for buttons */
-.custom-lightblue {
-    background-color: #3b82f6 !important;
-    color: white !important;
 }
