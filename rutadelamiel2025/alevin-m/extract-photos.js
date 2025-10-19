@@ -17,7 +17,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-const ALBUM_URL = "https://photos.google.com/share/AF1QipNYRGZxLMJ5uVs9p8hoazSkT0Jr3OzShbZEIrexMTDKw7aC6xfCwY_8bIEoMAlPOA?key=MU1IQW5FczNQRE95QWg0Tmo1eTlnQk9KSDVFVVNn"
+const ALBUM_URL = "https://photos.google.com/share/AF1QipPO95PJU3QuHw9a_76TyzM8PHd1aQmzjQV8bjACBU-P-vwn83AhaR4n5q9lMrxg-w?key=SlFKdVFXM1BWZEpZMW5WTUhDRndQYUNCbTdKcmdn"
 const OUTPUT_PATH = path.resolve('fotos.json');
 const TARGET_WIDTH = 5184;
 const TARGET_HEIGHT = 3456;
