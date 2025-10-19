@@ -1,0 +1,3 @@
+node .\add-watermark.js .\carpeta\
+node .\generate
+node .\add-time UNIXTIME 00:53:11
