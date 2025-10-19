@@ -56,7 +56,7 @@ try {
         // Return a new object with the new property added
         return {
             ...item,
-            imageUrlResized: resizedUrl
+            imageurlresized: resizedUrl
         };
     });
 
