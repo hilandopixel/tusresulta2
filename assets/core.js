@@ -107,6 +107,7 @@
                                     <strong class="custom-dark-greyblue">${firstName} ${lastName}</strong>
                                     <span  class="custom-dark-greyblue">Dorsal: ${item.dorsal}</span>
                                     <span  class="custom-dark-greyblue">Tiempo: ${item.tiempo}</span>
+                                    <span  class="custom-dark-greyblue">Posicion: ${item.posicion}</span>
                                 </div>
                             `;
             });
