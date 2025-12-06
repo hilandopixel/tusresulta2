@@ -1,9 +1,9 @@
-.custmom-dark-greyblue {
-    background: #4794a5 !important;
+.custom-dark-greyblue {
+    background: #0095a4 !important;
     color: white !important;
 }
 
-.custmom-black {
+.custom-black {
     background: black !important;
     color: white !important;
 }
@@ -12,26 +12,12 @@
     width: 100%;
 }
 
-.custom-pink {
-    background: #ff006b !important;
-    color: white !important;
-}
-
 .text-center {
     text-align: center;
 }
 
-.custom-lightblue {
-    background: #22ffe4 !important;
-    color: black !important;
-}
-
 .custom-text {
-    color: #09C !important;
-}
-
-.custom-text-pink {
-    color: #ff006b !important;
+    color: #0095a4 !important;
 }
 
 body {
@@ -156,7 +142,7 @@ button {
 .result-item-card {
     background-color: white;
     border: 1px solid #dee2e6;
-    border-left: 5px solid var(--custom-lightblue); /* Highlight border */
+    border-left: 5px solid var(--custom-black); /* Highlight border */
     border-radius: 5px;
     padding: 15px;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -179,6 +165,6 @@ button {
         float: right;
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--custom-pink);
+        color: var(--custom-dark-greyblue);
     }
 }

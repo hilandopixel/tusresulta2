@@ -20,19 +20,19 @@
 </head>
 <body>
     <h1 class="custom-text text-center">Ruta de la Miel 2025 - TusResulta2</h1>
-    <h2 class="custom-text-pink text-center">Prueba Reina</h2>
+    <h2 class="custom-dark-greyblue text-center">Prueba Reina</h2>
 
     <div class="">
         <img class="width-full" src="../preview.png" />
-        <div class="card custom-pink">
+        <div class="card custom-dark-greyblue">
             <div class="filter">
                 <div class="filter-group">
                     <p>Busca por tiempo (hh:mm:ss) o por dorsal: Te facilitamos las fotos con un margen de 30 segundos. Si quieres ver todas las fotos dale a limpiar y ve desplazándote hacia abajo</p>
                     <input type="text" id="timeInput" placeholder="Ejemplo: 01:15:30 o 227" />
-                    <button class="btn btn-primary custom-lightblue " onclick="filterByTime()">Buscar</button>
-                    <button class="btn btn-primary custom-lightblue " onclick="resetFilter('time')">Limpiar</button>
+                    <button class="btn btn-primary custom-black " onclick="filterByTime()">Buscar</button>
+                    <button class="btn btn-primary custom-black " onclick="resetFilter('time')">Limpiar</button>
 
-                    <button class="btn btn-primary custom-lightblue "
+                    <button class="btn btn-primary custom-black "
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#resultsCollapse"
@@ -48,12 +48,12 @@
 
     <div class="container-fluid mb-4">
         <div class="collapse" id="resultsCollapse">
-            <h3 class="custom-text-pink text-center mt-4">Resultados de la Carrera</h3>
+            <h3 class="custom-dark-greyblue text-center mt-4">Resultados de la Carrera</h3>
             <div id="resultsTableContainer" class="result-card-container">
             </div>
         </div>
     </div>
-    <div id="progress" class="progress custom-text-pink text-center">Cargando...</div>
+    <div id="progress" class="progress custom-dark-greyblue text-center">Cargando...</div>
 
     <div id="gallery" class="gallery">
     </div>
@@ -165,11 +165,11 @@
                 let lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
                 htmlContent += `
-                        <div class="result-item-card custom-pink">
+                        <div class="result-item-card custom-dark-greyblue">
                             <span class="posicion">${item.posicion}º</span>
-                            <strong class="custom-pink">${firstName} ${lastName}</strong>
-                            <span  class="custom-pink">Dorsal: ${item.dorsal}</span>
-                            <span  class="custom-pink">Tiempo: ${item.tiempo}</span>
+                            <strong class="custom-dark-greyblue">${firstName} ${lastName}</strong>
+                            <span  class="custom-dark-greyblue">Dorsal: ${item.dorsal}</span>
+                            <span  class="custom-dark-greyblue">Tiempo: ${item.tiempo}</span>
                         </div>
                     `;
             });
@@ -190,7 +190,7 @@
 
         function createCard(item) {
             const card = document.createElement('div');
-            card.className = 'card custom-pink';
+            card.className = 'card';
 
             const img = document.createElement('img');
             img.loading = 'lazy';
@@ -203,10 +203,10 @@
             dateDiv.textContent = 'Tiempo: ' + item.resulttime;
 
             const link = document.createElement('a');
-            link.className = 'custom-lightblue'
+            link.className = 'custom-dark-greyblue'
             link.href = item.imageurl;
             link.target = '_blank';
-            link.textContent = 'Ver Foto Tamaño Completo';
+            link.textContent = 'Descargar Foto click aquí';
             link.style.display = 'block';
             link.style.padding = '0 10px 10px';
             link.style.fontSize = '12px';
