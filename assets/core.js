@@ -103,7 +103,7 @@
 
                 htmlContent += `
                                 <div class="result-item-card custom-dark-greyblue">
-                                    <span class="posicion">${item.posicion}º</span>
+                                    <span class="posicion">${item.posicion}</span>
                                     <strong class="custom-dark-greyblue">${firstName} ${lastName}</strong>
                                     <span  class="custom-dark-greyblue">Dorsal: ${item.dorsal}</span>
                                     <span  class="custom-dark-greyblue">Tiempo: ${item.tiempo}</span>
@@ -143,7 +143,7 @@
             link.className = 'custom-dark-greyblue'
             link.href = item.imageurl;
             link.target = '_blank';
-            link.textContent = 'Descargar Foto click aquí';
+            link.textContent = 'Descargar Foto click aqui';
             link.style.display = 'block';
             link.style.padding = '0 10px 10px';
             link.style.fontSize = '12px';
