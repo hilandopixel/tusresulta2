@@ -1,3 +1,13 @@
+.custmom-dark-greyblue {
+    background: #4794a5 !important;
+    color: white !important;
+}
+
+.custmom-black {
+    background: black !important;
+    color: white !important;
+}
+
 .width-full {
     width: 100%;
 }
