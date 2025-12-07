@@ -102,12 +102,12 @@
                 let lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
                 htmlContent += `
-                                <div class="result-item-card custom-dark-greyblue">
+                                <div class="result-item-card custom-hilandopixel">
                                     <span class="posicion">${item.posicion}</span>
-                                    <strong class="custom-dark-greyblue">${firstName} ${lastName}</strong>
-                                    <span  class="custom-dark-greyblue">Dorsal: ${item.dorsal}</span>
-                                    <span  class="custom-dark-greyblue">Tiempo: ${item.tiempo}</span>
-                                    <span  class="custom-dark-greyblue">Posicion: ${item.posicion}</span>
+                                    <strong class="custom-hilandopixel">${firstName} ${lastName}</strong>
+                                    <span  class="custom-hilandopixel">Dorsal: ${item.dorsal}</span>
+                                    <span  class="custom-hilandopixel">Tiempo: ${item.tiempo}</span>
+                                    <span  class="custom-hilandopixel">Posicion: ${item.posicion}</span>
                                 </div>
                             `;
             });
@@ -141,7 +141,7 @@
             dateDiv.textContent = 'Tiempo: ' + item.resulttime;
 
             const link = document.createElement('a');
-            link.className = 'custom-dark-greyblue'
+            link.className = 'custom-hilandopixel'
             link.href = item.imageurl;
             link.target = '_blank';
             link.textContent = 'Descargar Foto click aqui';
