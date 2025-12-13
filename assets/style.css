@@ -25,8 +25,16 @@
     color: #5da999 !important;
 }
 
-.no-box{
+.custom-text-secondary {
+    color: white !important;
+}
+
+.no-box {
     box-shadow: none !important;
+}
+
+.no-border {
+    border: none !important;
 }
 
 body {
@@ -83,17 +91,17 @@ button {
     transition: transform 0.2s ease;
 }
 
-    .card:hover {
-        transform: scale(1.02);
-    }
+.card:hover {
+    transform: scale(1.02);
+}
 
-    .card img {
-        width: auto;
-        height: 200px;
-        object-fit: cover;
-        display: block;
-        margin: auto;
-    }
+.card img {
+    width: auto;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    margin: auto;
+}
 
 .date {
     padding: 10px;
@@ -119,11 +127,11 @@ button {
     transition: background-color 0.3s ease;
 }
 
-    /* Hover Effect (Optional but Recommended) */
-    .button-link:hover {
-        background-color: #0056b3; /* Darker blue on mouse-over */
-        border-color: #0056b3;
-    }
+/* Hover Effect (Optional but Recommended) */
+.button-link:hover {
+    background-color: #0056b3; /* Darker blue on mouse-over */
+    border-color: #0056b3;
+}
 
 /* Force Header Hiding for the Card View Aesthetic on ALL screens */
 #dataTable thead {
@@ -156,22 +164,27 @@ button {
     font-size: 0.9rem;
 }
 
-    .result-item-card strong {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 1.1rem;
-        color: var(--custom-text);
-    }
+.result-item-card strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    color: var(--custom-text);
+}
 
-    .result-item-card span {
-        display: block;
-        color: #6c757d;
-    }
+.result-item-card span {
+    display: block;
+    color: #6c757d;
+}
 
-    .result-item-card .posicion {
-        float: right;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--custom-hilandopixel);
-    }
+.result-item-card .posicion {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--custom-hilandopixel);
+}
+
+.navbar {
+    color: white !important;
+    background-color: #5da999;
+    box-shadow: 0 2px 4px rgba(0,0,0,.08);
 }
