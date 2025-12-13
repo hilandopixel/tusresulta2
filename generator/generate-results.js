@@ -5,8 +5,11 @@ const CONFIG_FILE = 'config.json';
 const TEMPLATE_RESULTS_FILE = 'results.html';
 const TEMPLATE_MENU_FILE = 'menu.html';
 const TEMPLATE_INDEX_FILE = 'index.html';
+const TEMPLATE_MAIN_FILE = 'main.html';
 const TEMPLATE_REDIRECT_FILE = 'redirect.html';
 const TEMPLATE_BUTTON_CATEGORY_FILE = 'button-category.html';
+const TEMPLATE_BUTTON_RACES_FILE = 'button-races.html';
+
 const OUTPUT_FILENAME = 'resultados.html';
 const REPLACE_TAG_TITLE = '[REPLACE_BY_TITLE]';
 const REPLACE_TAG_SUBTITLE = '[REPLACE_BY_SUBTITLE]';
@@ -14,6 +17,7 @@ const REPLACE_TAG_KEYWORDS = '[REPLACE_BY_KEYWORDS]';
 const REPLACE_TAG_ROOT = '[REPLACE_BY_ROOT]';
 const REPLACE_TAG_MENU = '[REPLACE_BY_MENU]';
 const REPLACE_TAG_BUTTON_CATEGORY = '[REPLACE_BY_BUTTON_CATEGORY]';
+const REPLACE_TAG_BUTTON_RACES = '[REPLACE_BY_BUTTON_RACES]';
 
 const OUTPUT_PATH = '../'
 /**
@@ -37,6 +41,9 @@ async function generateDirectoriesAndFiles() {
 
     let templateButtonCategoryContent = await fs.readFile(TEMPLATE_BUTTON_CATEGORY_FILE, 'utf-8');
     let templateIndexContent = await fs.readFile(TEMPLATE_INDEX_FILE, 'utf-8');
+    let templateMainContent = await fs.readFile(TEMPLATE_MAIN_FILE, 'utf-8');
+    let templateButtonRacesContent = await fs.readFile(TEMPLATE_BUTTON_RACES_FILE, 'utf-8');
+
 
     // Check if the main array exists
     if (!config.carreras || !Array.isArray(config.carreras)) {
@@ -46,6 +53,8 @@ async function generateDirectoriesAndFiles() {
 
     // --- 2. Read the json and loop into "carreras" node ---
 
+    let buttonsRaces = "";
+    let menuContent = "";
     for (const carrera of config.carreras) {
       var carreraRoot = carrera.root;
       var carreraTitle = carrera.title;
@@ -55,7 +64,10 @@ async function generateDirectoriesAndFiles() {
         continue;
       }
 
-
+      // Replace the placeholder in the template content
+        buttonsRaces = templateButtonRacesContent
+        .replaceAll(REPLACE_TAG_ROOT, carreraRoot)
+        .replaceAll(REPLACE_TAG_TITLE, carreraTitle) + buttonsRaces;
 
       // --- 3. For each element in the array, create a folder ---
       const carreraPath = path.join(OUTPUT_PATH, carreraRoot);
@@ -75,7 +87,7 @@ async function generateDirectoriesAndFiles() {
         await fs.writeFile(path.join(carreraPath, '/index.html'), redirectContent, 'utf-8');
 
         // Replace the placeholder in the template content
-        const menuContent = templateMenuContent
+         menuContent = templateMenuContent
         .replaceAll(REPLACE_TAG_KEYWORDS, carreraKeywords)
         .replaceAll(REPLACE_TAG_ROOT, carreraRoot)
         .replaceAll(REPLACE_TAG_TITLE, carreraTitle);
@@ -119,9 +131,9 @@ async function generateDirectoriesAndFiles() {
         
         
         // Replace the placeholder in the template content
-        buttons += templateButtonCategoryContent
+        buttons = templateButtonCategoryContent
         .replaceAll(REPLACE_TAG_ROOT, eventRoot)
-        .replaceAll(REPLACE_TAG_SUBTITLE, eventTitle);
+        .replaceAll(REPLACE_TAG_SUBTITLE, eventTitle) + buttons;
 
         await fs.writeFile(path.join(carreraPath, '/resultados.html'), indexContent, 'utf-8');
         console.log(`    Created file: ${outputPath}"`);
@@ -134,6 +146,11 @@ async function generateDirectoriesAndFiles() {
 
     }
 
+    let mainContent = templateMainContent
+        .replaceAll(REPLACE_TAG_BUTTON_RACES, buttonsRaces)
+        .replaceAll(REPLACE_TAG_MENU, menuContent);
+
+      await fs.writeFile(path.join(OUTPUT_PATH, 'index.html'), mainContent, 'utf-8');
     console.log('\n✅ All directories and files have been successfully created!');
 
   } catch (error) {
