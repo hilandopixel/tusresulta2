@@ -134,7 +134,6 @@ let loading = false;
 
             const dateDiv = document.createElement('div');
             dateDiv.className = 'date';
-            dateDiv.textContent = 'Tiempo: ' + item.resulttime;
 
             const link = document.createElement('a');
             link.className = 'custom-hilandopixel'

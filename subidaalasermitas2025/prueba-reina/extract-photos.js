@@ -17,7 +17,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-const ALBUM_URL = "https://photos.google.com/share/AF1QipN2VpnNtirzbyxiYdFn4fEfDyO2bQvc4bdlF8ajmFTGAkzjB2SkaKc5NYtclZzg8g?key=cm9QeEV1S3JqdmZ2WHNxd2NiLUJuV3h6R3Bna3hB"
+const ALBUM_URL = "https://photos.google.com/share/AF1QipOw0Jyh5yo5evNWKkjlOyQNsH32EN-1i46O7Qa4epKY-57jOsOl7dSfj4LNwKC05A?key=VEJxcGxGZEtzMVZVMzVheFlTS1IyNzR5cTNmLTB3"
 const OUTPUT_PATH = path.resolve('fotos.json');
 const TARGET_WIDTH = 5184;
 const TARGET_HEIGHT = 3456;
@@ -121,7 +121,7 @@ function parseDate(dateStr) {
       return Array.from(document.querySelectorAll('.p137Zd')).map(el => {
         const bgEl = el.querySelector('.RY3tic');
         const bgUrl = bgEl ? fixBg(bgEl.style.backgroundImage) : null;
-		const pDate = Date.parse(el.getAttribute('aria-label'));
+		const pDate = el.getAttribute('aria-label');
         return {
           href: el.getAttribute('href'),
           date: pDate,
